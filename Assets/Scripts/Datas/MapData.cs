@@ -37,21 +37,6 @@ public enum SquareState
     Special
 }
 
-//l'enum pour le state des edges
-public enum EdgeState
-{
-    Hori,
-    Vert
-}
-    
-//l'enum du state de la brush
-public enum BrushState
-{
-    One,
-    Line,
-    Cube,
-    Cross
-}
 public enum Alignment
 {
     Neutral,
