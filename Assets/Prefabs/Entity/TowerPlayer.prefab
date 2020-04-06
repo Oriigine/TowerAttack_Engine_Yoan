@@ -78,6 +78,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e62f1a896f3036f4b9d1cdf6efe44b6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefabMonster: {fileID: 0}
+  globalTarget: {fileID: 0}
   alignment: 2
   startLife: 1
   m_CurrentLife: 1
@@ -86,6 +88,9 @@ MonoBehaviour:
   damageAttack: 1
   rangeDetect: 1
   timeWaitNextAttack: 1
+  timeWaitNextSpawn: 1
+  m_CurrentTimeBeforeNextSpawn: 0
+  prefabBullet: {fileID: 0}
 --- !u!54 &549381587482201841
 Rigidbody:
   m_ObjectHideFlags: 0

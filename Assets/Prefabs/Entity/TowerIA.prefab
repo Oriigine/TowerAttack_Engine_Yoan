@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 549381587482201854}
   m_Layer: 9
   m_Name: TowerIA
-  m_TagString: Untagged
+  m_TagString: TowerIA
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -80,7 +80,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabMonster: {fileID: 2672909135726546339, guid: 11e72d6a588d3904caf85368807f4eff,
     type: 3}
-  prefabTowerIA: {fileID: 549381587482201855}
+  globalTarget: {fileID: 549381587482201855, guid: b299ceec0c721374381e125b50121793,
+    type: 3}
   alignment: 1
   startLife: 1
   m_CurrentLife: 1
@@ -92,6 +93,7 @@ MonoBehaviour:
   timeWaitNextSpawn: 1
   m_CurrentTimeBeforeNextSpawn: 0
   prefabBullet: {fileID: 0}
+  angeContainer: {fileID: 0}
 --- !u!54 &549381587482201841
 Rigidbody:
   m_ObjectHideFlags: 0

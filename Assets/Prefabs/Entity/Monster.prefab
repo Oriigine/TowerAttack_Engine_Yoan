@@ -202,6 +202,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0306fe7930d83134f924d9ed796656cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefabMonster: {fileID: 0}
+  globalTarget: {fileID: 549381587482201855, guid: b299ceec0c721374381e125b50121793,
+    type: 3}
   alignment: 1
   startLife: 1
   m_CurrentLife: 1
@@ -211,9 +214,10 @@ MonoBehaviour:
   rangeDetect: 2
   timeWaitNextAttack: 1
   timeWaitNextSpawn: 1
+  m_CurrentTimeBeforeNextSpawn: 0
+  prefabBullet: {fileID: 0}
   moveSpeed: 1
-  globalTarget: {fileID: 549381587482201855, guid: b299ceec0c721374381e125b50121793,
-    type: 3}
+  globalTarget: {fileID: 0}
   timeWaitBeforeMove: 1
 --- !u!54 &2672909135726546349
 Rigidbody:

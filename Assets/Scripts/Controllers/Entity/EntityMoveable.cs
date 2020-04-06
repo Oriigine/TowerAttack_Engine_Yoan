@@ -6,34 +6,36 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EntityMoveable : Entity
 {
-    [Range(1, 50)]
-    public float moveSpeed = 1;
-
-    // Range de detection
-    public CapsuleCollider detectionRange;
+    [Header("Move Props")]
+    private EntityMoveableData m_EntityMoveableData = null;
 
     [Header("Target")]
     // Variable target
     public GameObject globalTarget;
-    //public GameObject globalTarget;
     
-    [Header("Stop Time")]
     // Variable de temps d'arret
-    public float timeWaitBeforeMove = 1;
     private float m_CurrentTimeBeforeNextMove = 0;
-    
+
+    private Entity m_CurrentMoveToTarget = null;
+
     private NavMeshAgent m_NavMeshAgent;
-
-
 
     // Initialisation - Construction de l'entité
     public override void InitEntity()
     {
-        base.InitEntity();        
-        Debug.Log("Modif Tealrocks");
-        Debug.Log("Coucou Modif Pedro");
+        if(entityData is EntityMoveableData)
+        {
+            m_EntityMoveableData = (EntityMoveableData)entityData;
+        }
+        else
+        {
+            Debug.LogError("Error Type data need : " + nameof(EntityMoveableData), gameObject);
+        }
+
         // Initialisation - Construction
         m_NavMeshAgent = GetComponent<NavMeshAgent>();
+
+        base.InitEntity();;
     }
 
     public override void RestartEntity()
@@ -41,17 +43,19 @@ public class EntityMoveable : Entity
         base.RestartEntity();
 
         // Set/Restart properties
-        m_NavMeshAgent.speed = moveSpeed;
-        SetDestination();
+        m_NavMeshAgent.speed = m_EntityMoveableData.moveSpeed;
+        SetGlobalDestination();
+        m_CurrentMoveToTarget = null;
     }
 
+    #region GLOBAL TARGET
     public void SetGlobalTarget(GameObject target)
     {
         globalTarget = target;
-        SetDestination();
+        SetGlobalDestination();
     }
 
-    private void SetDestination()
+    private void SetGlobalDestination()
     {
         if (globalTarget)
         {
@@ -59,46 +63,97 @@ public class EntityMoveable : Entity
         }
     }
 
+    private void ResetToGlobalDestination()
+    {
+        m_CurrentMoveToTarget = null;
+        SetGlobalDestination();
+    }
+    #endregion
+
     public override void Update()
     {
-        
-        if(m_NavMeshAgent.isStopped)
-        {
-            if (m_CurrentTimeBeforeNextMove < timeWaitBeforeMove)
-            {
-                m_CurrentTimeBeforeNextMove += Time.deltaTime;
-            }
-            else
-            {
-                m_NavMeshAgent.isStopped = false;
-                SetDestination();
-            }
-        }
-        //base.Update();
+        base.Update();
+
+        UpdateMoveToTarget();
+
+        UpdateStopState();
     }
 
+    #region ATTACK
     protected override bool DoAttack(Entity targetEntity)
     {
+        // On verifie si le range To Do attack est valide
+        if(m_EntityMoveableData.rangeToDoAttack < entityData.rangeDetect)
+        {
+            // On test si on est assez prêt
+            if(!(Vector3.Distance(targetEntity.transform.position, transform.position) <= m_EntityMoveableData.rangeToDoAttack))
+            {
+                // Si non on save la target pour bouger vers la target
+                m_CurrentMoveToTarget = targetEntity;
+                m_NavMeshAgent.SetDestination(targetEntity.transform.position);
+                // On sort de la fonction pour empecher l'attack
+                return false;
+            }
+        }
         if(base.DoAttack(targetEntity))
         {
-            Debug.Log("Attack!");
             m_NavMeshAgent.isStopped = true;
             m_CurrentTimeBeforeNextMove = 0;
             return true;
         }
         return false;
     }
+    #endregion ATTACK
 
-    private void OnTriggerStay(Collider other)
+    #region MOVE
+    void UpdateStopState()
     {
-        if(other != null)
+        if (m_NavMeshAgent.isStopped)
         {
-            Debug.Log("Enemy Detected");
-            m_NavMeshAgent.SetDestination(other.transform.position);
+            if (m_CurrentTimeBeforeNextMove < m_EntityMoveableData.timeWaitBeforeMove)
+            {
+                m_CurrentTimeBeforeNextMove += Time.deltaTime;
+            }
+            else
+            {
+                m_NavMeshAgent.isStopped = false;
+                ResetToGlobalDestination();
+            }
+        }
+    }
+
+    void UpdateMoveToTarget()
+    {
+        if (m_CurrentMoveToTarget != null)
+        {
+            // On test si la cible est valide
+            if(m_CurrentMoveToTarget.IsValidEntity())
+            {
+                // On test si on est assez proche
+                if (Vector3.Distance(m_CurrentMoveToTarget.transform.position, transform.position) <= m_EntityMoveableData.rangeToDoAttack)
+                {
+                    // Si oui on fait l'attack
+                    DoAttack(m_CurrentMoveToTarget);
+
+                    // On reset pour que l'entité reparte sur la destination global
+                    ResetToGlobalDestination();
+                }
+                else
+                {
+                    // On continue à setter la destination car elle peut avoir bougé
+                    m_NavMeshAgent.SetDestination(m_CurrentMoveToTarget.transform.position);
+                }
+            }
+            else
+            {
+                // Cas ou l'entité vers laquelle on se dirige n'est plus valide.
+                ResetToGlobalDestination();
+            }
         }
         else
         {
-            m_NavMeshAgent.SetDestination(globalTarget.transform.position);
+            ResetToGlobalDestination();
         }
     }
+    #endregion MOVE
 }
